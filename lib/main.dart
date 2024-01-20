@@ -39,27 +39,38 @@ class _MyHomePageState extends State<MyHomePage> {
     var url = Uri.https('gist.githubusercontent.com', '/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json');
     var response = await http.get(url);
 
-    final jsonResult = jsonDecode(utf8.decode( response.bodyBytes));
+    final jsonResult = jsonDecode(utf8.decode(response.bodyBytes));
     final jsonStores = jsonResult['stores'];
-    stores.clear();
-    jsonStores.forEach((e) {
-      stores.add(Store.fromJson(e));
+
+    setState(() {
+      // 쌓인 리스트 새로고침 위한 clear
+      stores.clear();
+      jsonStores.forEach((e) {
+        stores.add(Store.fromJson(e));
+      });
     });
 
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetch();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('title'),),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            await fetch();
-            print(stores.length);
-          },
-          child: Text('테스트'),
-        )
+      appBar: AppBar(
+        title: Text('마스크 구매 가능한 곳: 0곳'),),
+      body: ListView(
+        children: stores.map((e) {
+          return ListTile(
+            title: Text(e.name ?? ''),
+            subtitle: Text(e.addr ?? ''),
+            trailing: Text(e.remainStat ?? '매진'),
+          );
+        }).toList(),
       ),
     );
   }
