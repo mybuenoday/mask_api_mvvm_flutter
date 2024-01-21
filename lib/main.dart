@@ -32,11 +32,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final stores = <Store>[];
+  var isLoading = true;
 
   Future fetch() async {
-    // FormatException 오류 -> URI 생성 부분 수정
-    // Uri.https 생성자를 사용할 때는 첫 번째 인자로 도메인 이름을, 두 번째 인자로 경로를 전달
-    var url = Uri.https('gist.githubusercontent.com', '/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json');
+    setState(() {
+      isLoading = true;
+    });
+    var url = Uri.https('gist.githubusercontent.com',
+        '/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json');
     var response = await http.get(url);
 
     final jsonResult = jsonDecode(utf8.decode(response.bodyBytes));
@@ -48,8 +51,9 @@ class _MyHomePageState extends State<MyHomePage> {
       jsonStores.forEach((e) {
         stores.add(Store.fromJson(e));
       });
+      isLoading = false;
     });
-
+    print('fetch 완료');
   }
 
   @override
@@ -62,15 +66,36 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('마스크 구매 가능한 곳: 0곳'),),
-      body: ListView(
-        children: stores.map((e) {
-          return ListTile(
-            title: Text(e.name ?? ''),
-            subtitle: Text(e.addr ?? ''),
-            trailing: Text(e.remainStat ?? '매진'),
-          );
-        }).toList(),
+        title: Text('마스크 구매 가능한 곳: ${stores.length}곳'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: fetch,
+          )
+        ],
+      ),
+      body: isLoading
+          ? loadingWidget()
+          : ListView(
+              children: stores.map((e) {
+                return ListTile(
+                  title: Text(e.name ?? ''),
+                  subtitle: Text(e.addr ?? ''),
+                  trailing: Text(e.remainStat ?? '매진'),
+                );
+              }).toList(),
+            ),
+    );
+  }
+
+  Widget loadingWidget() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('정보를 가져오는 중'),
+          CircularProgressIndicator(),
+        ],
       ),
     );
   }
