@@ -11,11 +11,14 @@ class StoreRepository {
     final List<Store> stores = [];
 
     var url = Uri.https('gist.githubusercontent.com',
-        '/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json?lat=$lat&lng=$lng');
+        '/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json');
 
     var response = await http.get(url);
 
-    try{
+    try {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final jsonResult = jsonDecode(utf8.decode(response.bodyBytes));
         final jsonStores = jsonResult['stores'];
@@ -29,18 +32,19 @@ class StoreRepository {
         });
         print('fetch 완료');
 
-        return stores
-            .where((e) =>
-        e.remainStat == 'plenty' ||
-            e.remainStat == 'some' ||
-            e.remainStat == 'few')
-            .toList()
+        return stores.where((e) {
+          return e.remainStat == 'plenty' ||
+              e.remainStat == 'some' ||
+              e.remainStat == 'few';
+        }).toList()
           ..sort((a, b) => a.km.compareTo(b.km));
       } else {
+        throw Exception('Failed to fetch stores: ${response.statusCode}');
         return [];
       }
-    } catch(e) {
-    return [];
+    } catch (e) {
+      print('Error fetching stores: $e');
+      return [];
+    }
   }
-
 }
