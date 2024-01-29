@@ -4,6 +4,8 @@ import 'package:mask_api_mvvm/viewmodel/store_model.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   // notifyListeners가 호출되면 통지를 받아서 StoreModel 객체를 MyApp에 제공
   runApp(ChangeNotifierProvider.value(
       value: StoreModel(),
