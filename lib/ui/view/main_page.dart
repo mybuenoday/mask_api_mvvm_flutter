@@ -30,11 +30,7 @@ class MainPage extends StatelessWidget {
             e.remainStat == 'some' ||
             e.remainStat == 'few')
             .map((e) {
-          return ListTile(
-            title: Text(e.name ?? ''),
-            subtitle: Text(e.addr ?? ''),
-            trailing: RemainStatListTile(e),
-          );
+          return RemainStatListTile(e);
         }).toList(),
       ),
     );
