@@ -1,10 +1,15 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:mask_api_mvvm/repository/store_repository.dart';
+import 'package:mask_api_mvvm/viewmodel/store_model.dart';
+import 'package:provider/provider.dart';
 import 'model/store.dart';
 
 void main() {
-  runApp(const MyApp());
+  // notifyListeners가 호출되면 통지를 받아서 StoreModel 객체를 MyApp에 제공
+  runApp(ChangeNotifierProvider.value(
+      value: StoreModel(),
+      child: const MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -23,53 +28,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  var stores = <Store>[];
-  var isLoading = true;
-
-  final storeRepository = StoreRepository();
-
-  @override
-  void initState() {
-    super.initState();
-
-    // list stores를 리턴하는 fetch, async 대신에 .then
-    storeRepository.fetch().then((value) {
-      setState(() {
-        stores = value;
-        isLoading = false;
-      });
-    });
-  }
-
+class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final storeModel = Provider.of<StoreModel>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            '마스크 구매 가능한 곳: ${stores.where((e) => e.remainStat == 'plenty' || e.remainStat == 'some' || e.remainStat == 'few').length}곳'),
+            '마스크 구매 가능한 곳: ${storeModel.stores.where((e) => e.remainStat == 'plenty' || e.remainStat == 'some' || e.remainStat == 'few').length}곳'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              storeRepository.fetch().then((e) {
-                (setState(() {
-                  stores = e;
-                }));
-              });
-            },
+              storeModel.fetch();
+            }
           )
         ],
       ),
-      body: isLoading
+      body: storeModel.isLoading
           ? loadingWidget()
           : ListView(
-              children: stores
+              children: storeModel.stores
                   .where((e) =>
                       e.remainStat == 'plenty' ||
                       e.remainStat == 'some' ||
