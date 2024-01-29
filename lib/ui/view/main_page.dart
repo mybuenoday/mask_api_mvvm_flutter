@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mask_api_mvvm/ui/widget/remain_stat_list_tile.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/store.dart';
 import '../../viewmodel/store_model.dart';
 
 class MainPage extends StatelessWidget {
@@ -11,7 +11,7 @@ class MainPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            '마스크 구매 가능한 곳: ${storeModel.stores.where((e) => e.remainStat == 'plenty' || e.remainStat == 'some' || e.remainStat == 'few').length}곳'),
+            '마스크 구매 가능한 곳: ${storeModel.stores.length}곳'),
         actions: [
           IconButton(
               icon: const Icon(Icons.refresh),
@@ -33,50 +33,13 @@ class MainPage extends StatelessWidget {
           return ListTile(
             title: Text(e.name ?? ''),
             subtitle: Text(e.addr ?? ''),
-            trailing: _buildRemainStatWidget(e),
+            trailing: RemainStatListTile(e),
           );
         }).toList(),
       ),
     );
   }
 
-  Widget _buildRemainStatWidget(Store store) {
-    var remainStat = '판매중지';
-    var description = '판매중지';
-    var color = Colors.black;
-
-    switch (store.remainStat) {
-      case 'plenty':
-        remainStat = '충분';
-        description = '100개 이상';
-        color = Colors.green;
-        break;
-      case 'some':
-        remainStat = '보통';
-        description = '30-99개';
-        color = Colors.yellow;
-        break;
-      case 'few':
-        remainStat = '부족';
-        description = '2-29개';
-        color = Colors.red;
-        break;
-      case 'empty':
-        remainStat = '소진임박';
-        description = '1개 이하';
-        color = Colors.grey;
-    }
-
-    return Column(
-      children: [
-        Text(
-          remainStat,
-          style: TextStyle(color: color, fontWeight: FontWeight.bold),
-        ),
-        Text(description),
-      ],
-    );
-  }
 
   Widget loadingWidget() {
     return const Center(
