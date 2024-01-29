@@ -21,21 +21,39 @@ class MainPage extends StatelessWidget {
           )
         ],
       ),
-      body: storeModel.isLoading == true
-          ? loadingWidget()
-          : ListView(
-        children: storeModel.stores
-            .where((e) =>
-        e.remainStat == 'plenty' ||
-            e.remainStat == 'some' ||
-            e.remainStat == 'few')
-            .map((e) {
-          return RemainStatListTile(e);
-        }).toList(),
-      ),
+      body: _buildBody(storeModel),
     );
   }
 
+Widget _buildBody(StoreModel storeModel) {
+    if (storeModel.isLoading == true) {
+      return loadingWidget();
+    }
+
+    if (storeModel.stores.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('반경 5km 이내 마스크가 없습니다.'),
+            Text('또는 인터넷 연결을 확인해주세요.'),
+          ],
+        ),
+
+      );
+    }
+    
+    return ListView(
+      children: storeModel.stores
+          .where((e) =>
+      e.remainStat == 'plenty' ||
+          e.remainStat == 'some' ||
+          e.remainStat == 'few')
+          .map((e) {
+        return RemainStatListTile(e);
+      }).toList(),
+    );
+}
 
   Widget loadingWidget() {
     return const Center(
